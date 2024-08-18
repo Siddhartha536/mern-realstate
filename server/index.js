@@ -1,6 +1,7 @@
 import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
+import userRoutes from "./routes/user.routes.js";
 dotenv.config();
 mongoose
   .connect(process.env.MONGO_DB_URL, {
@@ -20,3 +21,5 @@ app.listen(3000, () => {
     "Server is running on http://localhost:3000 Backend tested sucessfully"
   );
 });
+
+app.use("/api/user", userRoutes);
