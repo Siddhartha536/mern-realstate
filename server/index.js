@@ -29,3 +29,10 @@ app.use(express.json());
 
 app.use("/api/user", userRoutes);
 app.use("/api/auth", authRoutes);
+
+// Middleware to handle errors
+app.use((error, req, res, next) => {
+  const statusCode = error.statusCode || 500;
+  const message = error.message || "Internal Server Error";
+  res.status(statusCode).json({ sucess: false, statusCode, message });
+});
