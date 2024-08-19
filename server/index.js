@@ -2,7 +2,9 @@ import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import userRoutes from "./routes/user.routes.js";
+import authRoutes from "./routes/auth.routes.js";
 dotenv.config();
+
 mongoose
   .connect(process.env.MONGO_DB_URL, {
     useNewUrlParser: true,
@@ -22,4 +24,8 @@ app.listen(3000, () => {
   );
 });
 
+// Middleware to parse JSON bodies
+app.use(express.json());
+
 app.use("/api/user", userRoutes);
+app.use("/api/auth", authRoutes);
