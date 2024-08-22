@@ -3,6 +3,8 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import userRoutes from "./routes/user.routes.js";
 import authRoutes from "./routes/auth.routes.js";
+import cookieParser from "cookie-parser";
+
 dotenv.config();
 
 mongoose
@@ -26,7 +28,7 @@ app.listen(3000, () => {
 
 // Middleware to parse JSON bodies
 app.use(express.json());
-
+app.use(cookieParser());
 app.use("/api/user", userRoutes);
 app.use("/api/auth", authRoutes);
 
