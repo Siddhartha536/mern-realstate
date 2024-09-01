@@ -13,6 +13,9 @@ import {
   updateUserStart,
   updateUserFailure,
   updateUserSuccess,
+  deleteUserStart,
+  deleteUserFailure,
+  deleteUserSuccess,
 } from "../redux/user/userSlice";
 import { useDispatch } from "react-redux";
 export default function Profile() {
@@ -123,18 +126,16 @@ export default function Profile() {
   // Function to delete the user account
   const handleDeleteAccount = async () => {
     try {
+      dispatch(deleteUserStart());
       const res = await fetch(`/api/user/delete/${currentUser._id}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        method: "DELETE",
       });
       const data = await res.json();
       if (data.success === false) {
-        dispatch(updateUserFailure(data.message));
+        dispatch(deleteUserFailure(data.message));
         return;
       }
-      dispatch(updateUserSuccess(""));
+      dispatch(deleteUserSuccess(data));
 
       // Clear the entire local storage
       localStorage.clear();
@@ -146,7 +147,7 @@ export default function Profile() {
       // Delete the access_token cookie
       deleteCookie("access_token");
     } catch (error) {
-      dispatch(updateUserFailure(error.message));
+      dispatch(deleteUserFailure(error.message));
     }
   };
 

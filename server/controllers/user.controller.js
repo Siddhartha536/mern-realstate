@@ -40,8 +40,14 @@ export const deleteUserInfo = async (req, res, next) => {
   }
 
   try {
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return next(errorHandler(404, "User not found"));
+    }
+
     await User.findByIdAndDelete(req.params.id);
-    res.status(200).json({ message: "null" });
+    res.clearCookie("access_token");
+    res.status(200).json({ message: "Account Deleted Successfully" });
   } catch (error) {
     next(error);
   }
