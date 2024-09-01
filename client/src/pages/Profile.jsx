@@ -16,6 +16,9 @@ import {
   deleteUserStart,
   deleteUserFailure,
   deleteUserSuccess,
+  signOutUserStart,
+  signOutUserFailure,
+  signOutUserSuccess,
 } from "../redux/user/userSlice";
 import { useDispatch } from "react-redux";
 export default function Profile() {
@@ -101,23 +104,25 @@ export default function Profile() {
   };
 
   // Function to sign out the user
-  const handleSignout = () => {
-    // Clear the entire local storage
-    localStorage.clear();
-
-    // Function to delete a specific cookie
-    const deleteCookie = (name) => {
-      const now = new Date();
-      now.setTime(now.getTime() - 60 * 1000); // Set to 1 minute in the past
-      const expires = now.toUTCString();
-      document.cookie = `${name}=; expires=${expires}; path=/;`;
-    };
-
-    // Delete the access_token cookie
-    deleteCookie("access_token");
-
-    // Clear the currentUser state
-    dispatch(updateUserSuccess(null)); // This clears the user from Redux state
+  const handleSignout = async () => {
+    try {
+      dispatch(signOutUserStart());
+      const res = await fetch("/api/auth/signout", {
+        method: "GET",
+      });
+      if (res.status !== 200) {
+        throw new Error("Signout failed");
+      }
+      const data = await res.json();
+      if (data.success === false) {
+        dispatch(signOutUserFailure(data.message));
+        return;
+      }
+      console.log(data);
+      dispatch(signOutUserSuccess());
+    } catch (e) {
+      console.log(e);
+    }
 
     // Redirect to the sign-in page
     navigate("/signup");
