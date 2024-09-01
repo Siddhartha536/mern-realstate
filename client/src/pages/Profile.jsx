@@ -1,6 +1,8 @@
 import { useSelector } from "react-redux";
 import { useRef, useState, useEffect } from "react";
 import { app } from "../firebase";
+import { useNavigate } from "react-router-dom";
+
 import {
   getStorage,
   ref,
@@ -19,12 +21,16 @@ export default function Profile() {
   const [filePercentage, setFilePercentage] = useState(0);
   const [fileUploadError, setFileUploadError] = useState(false);
   const [formData, setFormData] = useState({});
+  const [updateSucess, setUpdateSucess] = useState(false);
   console.log(filePercentage);
   console.log(formData);
   console.log(file);
   console.log(filePercentage);
   const fileRef = useRef();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  // This useEffect hook will run when the currentUser changes
   useEffect(() => {
     if (file) {
       handleFileUpload(file);
@@ -34,6 +40,7 @@ export default function Profile() {
     setFileUploadError(false);
     setFilePercentage(0);
 
+    // Create a storage reference from our storage service and save the file to the storage bucket with a unique name
     const storage = getStorage(app);
     const fileName = `${new Date().getTime()}_${file.name}`;
     const storageRef = ref(storage, fileName);
@@ -52,17 +59,19 @@ export default function Profile() {
       },
       () => {
         getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-          setFormData({ ...formData, photo: downloadURL });
+          setFormData((prev) => ({ ...prev, photo: downloadURL }));
           console.log("File available at", downloadURL);
         });
       }
     );
   };
 
+  // Function to set the form data when the input fields change
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.id]: e.target.value });
+    setFormData((prev) => ({ ...prev, [e.target.id]: e.target.value }));
   };
 
+  // Function to submit the form data to the server
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log(formData);
@@ -82,10 +91,65 @@ export default function Profile() {
         return;
       }
       dispatch(updateUserSuccess(data));
+      setUpdateSucess(true);
     } catch (error) {
       dispatch(updateUserFailure(error.message));
     }
   };
+
+  // Function to sign out the user
+  const handleSignout = () => {
+    // Clear the entire local storage
+    localStorage.clear();
+
+    // Function to delete a specific cookie
+    const deleteCookie = (name) => {
+      const now = new Date();
+      now.setTime(now.getTime() - 60 * 1000); // Set to 1 minute in the past
+      const expires = now.toUTCString();
+      document.cookie = `${name}=; expires=${expires}; path=/;`;
+    };
+
+    // Delete the access_token cookie
+    deleteCookie("access_token");
+
+    // Clear the currentUser state
+    dispatch(updateUserSuccess(null)); // This clears the user from Redux state
+
+    // Redirect to the sign-in page
+    navigate("/signup");
+  };
+
+  // Function to delete the user account
+  const handleDeleteAccount = async () => {
+    try {
+      const res = await fetch(`/api/user/delete/${currentUser._id}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const data = await res.json();
+      if (data.success === false) {
+        dispatch(updateUserFailure(data.message));
+        return;
+      }
+      dispatch(updateUserSuccess(""));
+
+      // Clear the entire local storage
+      localStorage.clear();
+      navigate("/signup");
+      const deleteCookie = (name) => {
+        document.cookie = `${name}`;
+      };
+
+      // Delete the access_token cookie
+      deleteCookie("access_token");
+    } catch (error) {
+      dispatch(updateUserFailure(error.message));
+    }
+  };
+
   return (
     <div className="p-3 max-w-lg mx-auto">
       <h1 className="text-3l font-semibold text-center my-7">Profile</h1>
@@ -145,10 +209,20 @@ export default function Profile() {
         </button>
       </form>
       <div className=" flex justify-between mt-5">
-        <span className="text-red-700 cursor-pointer">Delete Account</span>
-        <span className="text-blue-700 cursor-pointer">Sign out</span>
+        <span
+          onClick={handleDeleteAccount}
+          className="text-red-700 cursor-pointer"
+        >
+          Delete Account
+        </span>
+        <span onClick={handleSignout} className="text-blue-700 cursor-pointer">
+          Sign out
+        </span>
       </div>
       <p className="text-red-700 mt-5">{error ? error : ""}</p>
+      <p className="text-green-700 mt-5">
+        {updateSucess ? "User account is Updated successfully" : ""}
+      </p>
     </div>
   );
 }

@@ -75,3 +75,13 @@ export const googleSigin = async (req, res, next) => {
     next(error);
   }
 };
+
+// Function to check backend is up and running
+export const healthCheck = (req, res, next) => {
+  try {
+    res.status(200).json({ status: true, message: "Backend up" });
+    console.log("Congratulation Backend is up and running  successfully");
+  } catch (error) {
+    next(error);
+  }
+};
