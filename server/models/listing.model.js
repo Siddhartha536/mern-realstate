@@ -40,11 +40,11 @@ const listingSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  Offer: {
+  offer: {
     type: Boolean,
     required: true,
   },
-  imageUrl: {
+  imageUrls: {
     type: Array,
     required: true,
   },
