@@ -53,19 +53,3 @@ export const deleteUserInfo = async (req, res, next) => {
   }
 };
 
-// Get all listings of a user
-export const getUserListings = async (req, res, next) => {
-  try {
-    // Check if the authenticated user is requesting their own listings
-    if (req.user && req.user.id === req.params.id) {
-      const listings = await Listing.find({ userRef: req.params.id });
-      return res.status(200).json(listings);
-    } else {
-      // If the user is unauthorized, return a 401 error
-      return next(errorHandler(401, "You can only view your own listings!"));
-    }
-  } catch (error) {
-    // Pass any errors to the error handler middleware
-    return next(error);
-  }
-};

@@ -28,6 +28,8 @@ export default function Profile() {
   const [fileUploadError, setFileUploadError] = useState(false);
   const [formData, setFormData] = useState({});
   const [updateSucess, setUpdateSucess] = useState(false);
+  const [showListingsError, setShowListingsError] = useState(false);
+  const [userListings, setUserListings] = useState([]);
   console.log(filePercentage);
   console.log(formData);
   console.log(file);
@@ -156,6 +158,40 @@ export default function Profile() {
     }
   };
 
+
+  // Function to show a listing
+  const handleShowListings = async () => {
+    try {
+      setShowListingsError(false);
+      const res = await fetch(`/api/listing/listings/${currentUser._id}`);
+      const data = await res.json();
+      if (data.success === false) {
+        setShowListingsError(true);
+        return;
+      }
+
+      setUserListings(data);
+    } catch (error) {
+      setShowListingsError(true);
+    }
+  };
+
+  // Function to delete a listing
+  const handleImageDelete = async (listingId, imageUrl) => {
+    try {
+      // Make API request to delete the image
+      await fetch(`/api/listings/deletelistings/${listingId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ imageUrl }),
+      });
+      
+    } catch (error) {
+      console.error('Error deleting image:', error);
+    }
+  };
   return (
     <div className="p-3 max-w-lg mx-auto">
       <h1 className="text-3l font-semibold text-center my-7">Profile</h1>
@@ -232,6 +268,56 @@ export default function Profile() {
       <p className="text-green-700 mt-5">
         {updateSucess ? "User account is Updated successfully" : ""}
       </p>
+      <button onClick={handleShowListings} className='text-green-700 w-full'>
+        Show Listings
+      </button>
+      <p className='text-red-700 mt-5'>
+        {showListingsError ? 'Error showing listings' : ''}
+      </p>
+
+      {userListings && userListings.length > 0 && (
+  <div className='flex flex-col gap-4'>
+    <h1 className='text-center mt-7 text-2xl font-semibold'>
+      Your Listings
+    </h1>
+    {userListings.map((listing) => (
+      <div
+        key={listing._id}
+        className='border rounded-lg p-3 flex flex-col gap-4'
+      >
+        <h2 className='text-xl font-semibold'>{listing.name}</h2>
+        <div className='flex gap-4'>
+          {listing.imageUrls.map((imageUrl, index) => (
+            <div key={index} className='relative'>
+              <img
+                src={imageUrl}
+                alt='listing cover'
+                className='h-16 w-16 object-contain'
+              />
+              <button
+                onClick={() => handleImageDelete(listing._id, imageUrl)}
+                className='absolute top-0 right-0 bg-red-500 text-white p-1 rounded-full'
+              >
+                X
+              </button>
+            </div>
+          ))}
+        </div>
+        <div className='flex justify-between'>
+          <button
+            onClick={() => handleListingDelete(listing._id)}
+            className='text-red-700 uppercase'
+          >
+            Delete Listing
+          </button>
+          <Link to={`/update-listing/${listing._id}`}>
+            <button className='text-green-700 uppercase'>Edit</button>
+          </Link>
+        </div>
+      </div>
+    ))}
+  </div>
+)}
     </div>
   );
 }
