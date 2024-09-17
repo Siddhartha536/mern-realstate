@@ -44,7 +44,7 @@ app.use("/api/listing", listingRoutes);
 // static folder
 app.use(express.static(path.join(__dirname, "/client/dist")));
 aap.get("*", (req , res) => {
-  res.sendFile(path.resolve(__dirname, "client", "dist", "index.html"));
+  res.sendFile(path.join(__dirname, "client", "dist", "index.html"));
 });
 
 // Middleware to handle errors
