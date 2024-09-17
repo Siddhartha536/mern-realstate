@@ -40,6 +40,7 @@ export default function Listing() {
           return;
         }
         setListing(data);
+        console.log("listing data", data);
         setLoading(false);
         setError(false);
       } catch (error) {
@@ -50,6 +51,7 @@ export default function Listing() {
     fetchListing();
   }, [params.listingId]);
 
+  
   return (
     <main>
       {loading && <p className='text-center my-7 text-2xl'>Loading...</p>}
@@ -118,14 +120,14 @@ export default function Listing() {
               <li className='flex items-center gap-1 whitespace-nowrap '>
                 <FaBed className='text-lg' />
                 {listing.bedrooms > 1
-                  ? `${listing.bedrooms} beds `
-                  : `${listing.bedrooms} bed `}
+                  ? `${listing.bedRooms} beds `
+                  : `${listing.bedRooms} bed `}
               </li>
               <li className='flex items-center gap-1 whitespace-nowrap '>
                 <FaBath className='text-lg' />
                 {listing.bathrooms > 1
-                  ? `${listing.bathrooms} baths `
-                  : `${listing.bathrooms} bath `}
+                  ? `${listing.bathRooms} baths `
+                  : `${listing.bathRooms} bath `}
               </li>
               <li className='flex items-center gap-1 whitespace-nowrap '>
                 <FaParking className='text-lg' />
