@@ -2,6 +2,7 @@ import { errorHandler } from "../utils/error.js";
 import bcrypt from "bcrypt";
 import User from "../models/user.model.js";
 import Listing from "../models/listing.model.js";
+
 export const updateUserInfo = async (req, res, next) => {
   console.log("on update user info function", req.user.id);
 
