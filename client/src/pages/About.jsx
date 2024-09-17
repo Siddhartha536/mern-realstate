@@ -28,6 +28,13 @@ export default function About() {
         <p className='text-lg text-slate-700'><strong>Address:</strong> IIT Gandhinagar, Palaj, Gujarat, India</p>
         <p className='text-lg text-slate-700'><strong>Pincode:</strong> 382355</p>
         <p className='text-lg text-slate-700'><strong>Contact No:</strong> 9353404609</p>
+        <p className='text-lg text-slate-700'>
+  <strong>Email: </strong> 
+  <a href="https://mail.google.com/mail/?view=cm&fs=1&to=m.siddhartha@iitgn.ac.in" target="_blank" className="text-blue-600 underline">
+    m.siddhartha@iitgn.ac.in
+  </a>
+</p>
+
       </section>
     </div>
   );
