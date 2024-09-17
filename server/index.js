@@ -5,7 +5,7 @@ import userRoutes from "./routes/user.routes.js";
 import authRoutes from "./routes/auth.routes.js";
 import listingRoutes from "./routes/listing.routes.js";
 import cookieParser from "cookie-parser";
-
+import path from "path";
 dotenv.config();
 
 mongoose
@@ -19,6 +19,11 @@ mongoose
   .catch((error) => {
     console.error("MongoDB connection error:", error);
   });
+
+
+  // create dynamic path 
+  const __dirname = path.resolve();
+
 
 const app = express();
 app.listen(3000, () => {
@@ -34,6 +39,13 @@ app.use("/api/user", userRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/listing", listingRoutes);
+
+
+// static folder
+app.use(express.static(path.join(__dirname, "/client/dist")));
+aap.get("*", (req , res) => {
+  res.sendFile(path.resolve(__dirname, "client", "dist", "index.html"));
+});
 
 // Middleware to handle errors
 app.use((error, req, res, next) => {
