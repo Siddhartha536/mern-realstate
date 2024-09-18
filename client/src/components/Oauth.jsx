@@ -1,13 +1,32 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { GoogleAuthProvider, getAuth, signInWithPopup } from "firebase/auth";
 import { app } from "../firebase";
 import { useDispatch } from "react-redux";
 import { signInSuccess } from "../redux/user/userSlice";
+
 export default function Oauth() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [isWebView, setIsWebView] = useState(false);
+
+  useEffect(() => {
+    // Simple check for web view
+    const userAgent = navigator.userAgent.toLowerCase();
+    setIsWebView(
+      userAgent.includes('fb') || 
+      userAgent.includes('instagram') || 
+      userAgent.includes('twitter') ||
+      userAgent.includes('linkedin')
+    );
+  }, []);
+
   const handleGoogleClick = async () => {
+    if (isWebView) {
+      alert("Please open this page in your default browser to use Google Sign-In.");
+      return;
+    }
+
     try {
       const provider = new GoogleAuthProvider();
       const auth = getAuth(app);
@@ -25,12 +44,12 @@ export default function Oauth() {
       });
       const data = await res.json();
       dispatch(signInSuccess(data));
-      console.log(result);
       navigate("/");
     } catch (error) {
-      console.log("could not sign with google");
+      console.log("Could not sign in with Google", error);
     }
   };
+
   return (
     <div>
       <button
@@ -38,8 +57,13 @@ export default function Oauth() {
         type="button"
         className="bg-red-700 text-white p-3 rounded-lg uppercase hover:opacity-95 hover:cursor-pointer w-full"
       >
-        continue with google
+        {isWebView ? "Open in Browser to Continue with Google" : "Continue with Google"}
       </button>
+      {isWebView && (
+        <p className="mt-2 text-sm text-gray-600">
+          For security reasons, please open this page in your default browser to use Google Sign-In.
+        </p>
+      )}
     </div>
   );
 }
